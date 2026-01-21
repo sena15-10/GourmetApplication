@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">GourmetSearchApplication</string>
+    <string name="search_bar_hint">場所や料理を検索</string>
+</resources>
