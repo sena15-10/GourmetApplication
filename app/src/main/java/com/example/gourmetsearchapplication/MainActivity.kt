@@ -15,12 +15,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: RestaurantAdapter
     private val shopList = mutableListOf<Shop>()
-
+    //
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://webservice.recruit.co.jp")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
     companion object {
         private const val DEBUG_TAG = "GourmetSearch"
         private const val API_KEY = "e162d3653b8b0b5a"
