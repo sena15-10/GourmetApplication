@@ -9,6 +9,7 @@ interface HotPepperApiService {
         @Query("key") apiKey: String,
         @Query("keyword") keyword: String,
         @Query("format") format: String = "json",
+        @Query("start") start : Int = 1,
         @Query("count") count: Int = 20
     ): HotPepperResponse
 }

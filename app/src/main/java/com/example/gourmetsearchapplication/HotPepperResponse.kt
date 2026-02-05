@@ -8,6 +8,8 @@ data class HotPepperResponse(
 )
 
 data class Results(
+    @SerializedName("results_available") val totalAvailable: Int, // 検索結果の全件数
+    @SerializedName("results_start") val startPosition: Int,      // 現在の表示開始位置
     @SerializedName("shop") val shops: List<ShopResponse>
 )
 
