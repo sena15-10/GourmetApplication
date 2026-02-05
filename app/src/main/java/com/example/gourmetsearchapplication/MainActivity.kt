@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 access = item.access               // アクセス方法
             )
         }
-        return shops
+        return shops //マージ
     }
 
     // 最初に見せるダミーデータです
