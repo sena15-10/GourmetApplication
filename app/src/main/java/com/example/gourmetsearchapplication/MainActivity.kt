@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private val PAGE_COUNT = 20
     private var totalCount = 0
     private var currentKeyword = ""
-//ここでAPIから届いた「文字列」を解析してHotPepper.ktの構造をじっくり見て、パズルのように当てはめていくものである。
+
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://webservice.recruit.co.jp")
         .addConverterFactory(GsonConverterFactory.create())
@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSearch() {
+        // UIの変更に合わせ、1つのEditText（etSearch）だけを取得
         val etSearch = findViewById<EditText>(R.id.etSearch)
         val btnSearch = findViewById<MaterialButton>(R.id.btnSearch)
 
@@ -95,9 +96,7 @@ class MainActivity : AppCompatActivity() {
 
         btnNext.setOnClickListener {
             if (currentStart + PAGE_COUNT <= totalCount) {
-                // 現在の開始位置(1)に 20 を足して 21 に更新する
                 currentStart += PAGE_COUNT
-                // 21番目から取得してね！と命令を出す
                 searchRestaurants(currentKeyword, currentStart)
             }
         }
@@ -108,13 +107,9 @@ class MainActivity : AppCompatActivity() {
         val btnNext = findViewById<MaterialButton>(R.id.btnNext)
         val tvPageInfo = findViewById<TextView>(R.id.tvPageInfo)
 
-        // 「前へ」ボタン：1ページ目なら無効
         btnPrev.isEnabled = currentStart > 1
-
-        // 「次へ」ボタン：次のデータがなければ無効
         btnNext.isEnabled = (currentStart + PAGE_COUNT) <= totalCount
 
-        // ページ情報の表示 (例: 1-20 / 150)
         val endRange = if (currentStart + PAGE_COUNT - 1 > totalCount) totalCount else currentStart + PAGE_COUNT - 1
         if (totalCount > 0) {
             tvPageInfo.text = "$currentStart - $endRange / $totalCount"
@@ -130,11 +125,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 検索ロジックを改善
+     * 1つのキーワードを「keyword」と「address」の両方に渡し、検索精度を向上させます。
+     */
     private fun searchRestaurants(keyword: String, start: Int) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    apiService.searchShops(API_KEY, keyword, start = start, count = PAGE_COUNT)
+                    apiService.searchShops(
+                        apiKey = API_KEY,
+                        keyword = keyword, // キーワードとして検索
+                        address = keyword, // 同時に、住所としても検索
+                        start = start, 
+                        count = PAGE_COUNT
+                    )
                 }
 
                 totalCount = response.results.totalAvailable
@@ -154,7 +159,6 @@ class MainActivity : AppCompatActivity() {
                 adapter.updateData(shops)
                 updatePaginationUi()
                 
-                // リストの先頭へスクロール
                 findViewById<RecyclerView>(R.id.rvShop).scrollToPosition(0)
 
             } catch (e: Exception) {
@@ -164,7 +168,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadInitialData() {
-        // 初期状態は空かサンプルを表示
         updatePaginationUi()
     }
 }

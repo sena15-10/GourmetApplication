@@ -29,7 +29,7 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:background="@null"
-                android:hint="@string/search_bar_hint"
+                android:hint="場所・キーワード（例：渋谷 ラーメン）"
                 android:importantForAutofill="no"
                 android:inputType="text"
                 android:paddingStart="20dp"
@@ -51,6 +51,13 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteArea"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                tools:layout_editor_absoluteX="138dp"
+                tools:layout_editor_absoluteY="2dp" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -59,7 +66,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@+id/paginationLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,10 +76,10 @@
         android:id="@+id/paginationLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FFFFFF"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.button.MaterialButton
@@ -81,8 +87,8 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="前へ"
-            android:enabled="false" />
+            android:enabled="false"
+            android:text="前へ" />
 
         <TextView
             android:id="@+id/tvPageInfo"
@@ -97,8 +103,8 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="次へ"
-            android:enabled="false" />
+            android:enabled="false"
+            android:text="次へ" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
