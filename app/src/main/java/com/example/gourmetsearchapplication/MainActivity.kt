@@ -2,6 +2,8 @@ package com.example.gourmetsearchapplication
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -29,7 +31,9 @@ class MainActivity : AppCompatActivity() {
     private val PAGE_COUNT = 20
     private var totalCount = 0
     private var currentKeyword = ""
-
+    //新しく追加します
+    private var currentArea = ""//検索したエリアを格納
+    private var allArea = "全国"
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://webservice.recruit.co.jp")
         .addConverterFactory(GsonConverterFactory.create())
@@ -53,12 +57,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupRecyclerView()
+
         setupSearch()
         setupPagination()
         setupFab()
-
+        setupAreaDropdown() //★追加：ドロップダウンメニューを設定するメソッドを呼ぶ
         loadInitialData()
     }
+
+    // --- ここからが修正・追加するメソッドの説明です---
+    /**
+     * ★新しく追加するメソッド
+     * 目的：エリア選択用のドロップダウンメニューを機能させる
+     * 動き：
+     * 1. `strings.xml` に定義した `prefectures_array`（都道府県の配列）を読み込みます。
+     * 2. `ArrayAdapter` を作成します。これは、単純な文字列の配列を、ドロップダウンの各項目として表示できるように変換する「アダプター」です。
+     * 3. XMLレイアウトの `AutoCompleteTextView`（ID: autoCompleteArea）を見つけ、このアダプターをセットします。
+     *    これにより、`AutoCompleteTextView` がドロップダウンメニューとして振る舞うようになります。
+     */
+    private fun setupAreaDropdown() {
+        val areaList = resources.getStringArray(R.array.prefectures_array)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, areaList)
+        val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.autoCompleteArea)
+        autoCompleteTextView.setAdapter(adapter)
+    }
+
 
     private fun setupRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.rvShop)
@@ -70,14 +93,19 @@ class MainActivity : AppCompatActivity() {
     private fun setupSearch() {
         // UIの変更に合わせ、1つのEditText（etSearch）だけを取得
         val etSearch = findViewById<EditText>(R.id.etSearch)
+        val autoCompleteArea = findViewById<AutoCompleteTextView>(R.id.autoCompleteArea)
         val btnSearch = findViewById<MaterialButton>(R.id.btnSearch)
+
 
         btnSearch.setOnClickListener {
             val keyword = etSearch.text.toString()
-            if (keyword.isNotEmpty()) {
+            var area = autoCompleteArea.text.toString()//追加
+            area = if (area == allArea) "" else area
+            if (keyword.isNotEmpty() || area.isNotEmpty()) {
                 currentKeyword = keyword
+                currentArea = area
                 currentStart = 1 // 新規検索時は1ページ目から
-                searchRestaurants(currentKeyword, currentStart)
+                searchRestaurants(currentKeyword, area , currentStart)
             }
         }
     }
@@ -90,14 +118,15 @@ class MainActivity : AppCompatActivity() {
             if (currentStart > 1) {
                 currentStart -= PAGE_COUNT
                 if (currentStart < 1) currentStart = 1
-                searchRestaurants(currentKeyword, currentStart)
+                //areaの引数を追加
+                searchRestaurants(currentKeyword, currentArea ,currentStart)
             }
         }
 
         btnNext.setOnClickListener {
             if (currentStart + PAGE_COUNT <= totalCount) {
                 currentStart += PAGE_COUNT
-                searchRestaurants(currentKeyword, currentStart)
+                searchRestaurants(currentKeyword,currentArea, currentStart)
             }
         }
     }
@@ -126,17 +155,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * 検索ロジックを改善
-     * 1つのキーワードを「keyword」と「address」の両方に渡し、検索精度を向上させます。
+     * ★修正するメソッド
+     * 目的：ホットペッパーAPIに実際に問い合わせを行う
+     * 動き：
+     * 1. メソッドの引数として `keyword` と `area` の両方を受け取るように変更します。
+     * 2. `apiService.searchShops` を呼び出す際、APIの `keyword` パラメータに `keyword` 変数を、
+     *    `address` パラメータに `area` 変数をセットします。
+     *    これにより、「キーワード」と「場所」を明確に区別してAPIにリクエストできます。
      */
-    private fun searchRestaurants(keyword: String, start: Int) {
+    private fun searchRestaurants(keyword: String,area: String, start: Int) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val response = withContext(Dispatchers.IO) {
                     apiService.searchShops(
                         apiKey = API_KEY,
                         keyword = keyword, // キーワードとして検索
-                        address = keyword, // 同時に、住所としても検索
+                        address = area, // 同時に、住所としても検索
                         start = start, 
                         count = PAGE_COUNT
                     )
@@ -150,7 +184,7 @@ class MainActivity : AppCompatActivity() {
                         catchCopy = item.catchCopy,
                         imageUrl = item.photo.pc.large,
                         category = item.genre.name,
-                        distance = "",
+                        distance = "", //GPS機能などで後程実装
                         address = item.address,
                         access = item.access
                     )

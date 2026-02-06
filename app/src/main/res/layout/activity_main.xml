@@ -13,8 +13,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -22,24 +22,68 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp">
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
+
+            <!-- 1. キーワード入力エリア (変更なし) -->
+            <ImageView
+                android:id="@+id/ivKeywordIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:layout_constraintBottom_toBottomOf="@+id/etSearch"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/etSearch"
+                app:tint="#888888" />
 
             <EditText
                 android:id="@+id/etSearch"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
+                android:layout_marginStart="8dp"
                 android:background="@null"
-                android:hint="場所・キーワード（例：渋谷 ラーメン）"
+                android:hint="何を食べたい？（例：ラーメン）"
                 android:importantForAutofill="no"
                 android:inputType="text"
-                android:paddingStart="20dp"
-                android:paddingEnd="10dp"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btnSearch"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ivKeywordIcon"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- 区切り線 -->
+            <View
+                android:id="@+id/searchDivider"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:background="#B1AFAF"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/etSearch" />
+
+            <!-- 2. エリア選択のプルダウンメニュー -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/areaMenuLayout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:hint="エリアを選択"
+                app:layout_constraintEnd_toStartOf="@+id/btnSearch"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/searchDivider">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteArea"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    tools:ignore="LabelFor" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 検索ボタン -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSearch"
                 style="@style/Widget.Material3.Button.IconButton.Filled"
@@ -47,20 +91,14 @@
                 android:layout_height="48dp"
                 android:backgroundTint="#FF9800"
                 app:icon="@android:drawable/ic_menu_search"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/areaMenuLayout"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteArea"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                tools:layout_editor_absoluteX="138dp"
-                tools:layout_editor_absoluteY="2dp" />
+                app:layout_constraintTop_toTopOf="@+id/areaMenuLayout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- RecyclerView や FAB など、以下の部分は変更ありません -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvShop"
         android:layout_width="0dp"
@@ -71,14 +109,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchCard"
         tools:listitem="@layout/item_restaurant" />
-
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/paginationLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
-        android:gravity="center"
-        android:orientation="horizontal"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
@@ -87,8 +122,12 @@
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="前へ" />
+            android:text="前へ"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tvPageInfo"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvPageInfo"
@@ -96,16 +135,23 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:text="0 / 0"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnNext"
+            app:layout_constraintStart_toEndOf="@+id/btnPrev"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="次へ" />
-    </LinearLayout>
+            android:text="次へ"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvPageInfo"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabLocation"
@@ -118,5 +164,4 @@
         app:layout_constraintBottom_toTopOf="@+id/paginationLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@android:color/white" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
