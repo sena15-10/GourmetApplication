@@ -171,13 +171,13 @@ class MainActivity : AppCompatActivity() {
                         apiKey = API_KEY,
                         keyword = keyword, // キーワードとして検索
                         address = area, // 同時に、住所としても検索
-                        start = start, 
+                        start = start,
                         count = PAGE_COUNT
                     )
                 }
 
                 totalCount = response.results.totalAvailable
-                
+
                 val shops = response.results.shops.map { item ->
                     Shop(
                         name = item.name,
@@ -192,7 +192,7 @@ class MainActivity : AppCompatActivity() {
 
                 adapter.updateData(shops)
                 updatePaginationUi()
-                
+
                 findViewById<RecyclerView>(R.id.rvShop).scrollToPosition(0)
 
             } catch (e: Exception) {
